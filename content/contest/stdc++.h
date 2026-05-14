@@ -1,34 +1,41 @@
-#include <bits/stdc++.h>
 using namespace std;
-
-template <typename T> constexpr
-void __print (const T &x);
-
-template<typename T, typename V>
-void __print(const pair<T, V> &x) {
-  cerr << "{"; __print(x.first);
-  cerr << ", "; __print(x.second); cerr << "}";
+template <class T, class = void> struct is_iterable : false_type {};
+template <class T>
+struct is_iterable<T, void_t<decltype(begin(declval<T>())), decltype(end(declval<T>()))>>
+    : true_type {};
+template <class T, class = void> struct is_streamable : false_type {};
+template <class T> struct is_streamable<T, void_t<decltype(cerr << declval<T>())>> : true_type {};
+template <class T> void dbg_print(const T &x);
+template <class A, class B> void dbg_print(const pair<A, B> &p) {
+  cerr << "{"; dbg_print(p.first); cerr << ", "; dbg_print(p.second); cerr << "}";
 }
-template <typename T> constexpr
-void __print (const T &x) {
-  if constexpr (is_arithmetic_v<T> ||
-    is_same_v<T,const char*> || is_same_v<T,bool>
-    || is_same_v<T, string>) cerr << x;
-  else {
-    int f = 0; cerr << '{';
-    for (auto &i: x)
-      cerr << (f++ ? ", " : ""), __print(i);
-    cerr << "}";
+
+template <class T> void dbg_print(const T &x) {
+  if constexpr (is_streamable<T>::value) {
+    cerr << x;
+  } else if constexpr (is_iterable<T>::value) {
+    cerr << "{"; int f = 0;
+    for (auto &i : x) {
+      if (f++) cerr << ", "; dbg_print(i);
+    } cerr << "}";
+  } else { cerr << "<unprintable>"; }
+}
+void dbg_out() { cerr << RESET << "]\n"; }
+
+template <class T, class... V> void dbg_out(T t, V... v) {
+  dbg_print(t);if (sizeof...(v)) cerr << ", ";dbg_out(v...);
+}
+
+template <class T> void dbg_array(const T *a, int n) {
+  cerr << "{";
+  for (int i = 0; i < n; i++) {
+    if (i) cerr << ", "; cerr << a[i];
   }
-}
-void _print() { cerr << "]\n"; }
-template <typename T, typename... V>
-void _print(T t, V... v) {
-  __print(t);
-  if (sizeof...(v)) cerr << ", ";
-  _print(v...);
+  cerr << "}";
 }
 
-#ifdef DeBuG
-#define dbg(x...) cerr << "\t\e[93m"<<__func__<<":"<<__LINE__<<" [" << #x << "] = ["; _print(x); cerr << "\e[0m";
+#ifdef DEBUG
+#else
+#define debug(...)
+#define dbg_arr(...)
 #endif
